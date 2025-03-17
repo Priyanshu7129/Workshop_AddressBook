@@ -1,8 +1,10 @@
 package com.worskhop.WorkshopAddressBook.controller;
 
+import com.worskhop.WorkshopAddressBook.dto.AddressBookDTO;
 import com.worskhop.WorkshopAddressBook.dto.ResponseDTO;
 import com.worskhop.WorkshopAddressBook.model.AddressBookEntry;
-import com.worskhop.WorkshopAddressBook.service.AddressBookService;
+import com.worskhop.WorkshopAddressBook.service.IAddressBookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +16,7 @@ import java.util.List;
 public class AddressBookController {
 
     @Autowired
-    private AddressBookService addressBookService;
+    private IAddressBookService addressBookService;
 
     // Get all contacts
     @GetMapping
@@ -32,15 +34,15 @@ public class AddressBookController {
 
     // Add a new contact
     @PostMapping
-    public ResponseEntity<ResponseDTO<AddressBookEntry>> addContact(@RequestBody AddressBookEntry entry) {
-        AddressBookEntry savedEntry = addressBookService.addContact(entry);
+    public ResponseEntity<ResponseDTO<AddressBookEntry>> addContact(@Valid @RequestBody AddressBookDTO dto) {
+        AddressBookEntry savedEntry = addressBookService.addContact(dto);
         return ResponseEntity.ok(new ResponseDTO<>("Contact added successfully", savedEntry));
     }
 
     // Update contact
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<AddressBookEntry>> updateContact(@PathVariable Long id, @RequestBody AddressBookEntry entry) {
-        AddressBookEntry updatedEntry = addressBookService.updateContact(id, entry);
+    public ResponseEntity<ResponseDTO<AddressBookEntry>> updateContact(@PathVariable Long id, @Valid @RequestBody AddressBookDTO dto) {
+        AddressBookEntry updatedEntry = addressBookService.updateContact(id, dto);
         return ResponseEntity.ok(new ResponseDTO<>("Contact updated successfully", updatedEntry));
     }
 

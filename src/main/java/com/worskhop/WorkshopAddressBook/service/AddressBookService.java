@@ -1,45 +1,52 @@
 package com.worskhop.WorkshopAddressBook.service;
 
+import com.worskhop.WorkshopAddressBook.dto.AddressBookDTO;
 import com.worskhop.WorkshopAddressBook.model.AddressBookEntry;
 import com.worskhop.WorkshopAddressBook.repository.AddressBookRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
 @Service
-public class AddressBookService {
+public class AddressBookService implements IAddressBookService {
 
     @Autowired
     private AddressBookRepository addressBookRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Override
     public List<AddressBookEntry> getAllContacts() {
         return addressBookRepository.findAll();
     }
 
+    @Override
     public AddressBookEntry getContactById(Long id) {
         return addressBookRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found with id: " + id));
     }
 
-    public AddressBookEntry addContact(AddressBookEntry entry) {
+    @Override
+    public AddressBookEntry addContact(AddressBookDTO dto) {
+        AddressBookEntry entry = modelMapper.map(dto, AddressBookEntry.class);
         return addressBookRepository.save(entry);
     }
 
-    public AddressBookEntry updateContact(Long id, AddressBookEntry updatedEntry) {
+    @Override
+    public AddressBookEntry updateContact(Long id, AddressBookDTO dto) {
         AddressBookEntry existingEntry = getContactById(id);
-        existingEntry.setName(updatedEntry.getName());
-        existingEntry.setEmail(updatedEntry.getEmail());
-        existingEntry.setPhoneNumber(updatedEntry.getPhoneNumber());
-        existingEntry.setAddress(updatedEntry.getAddress());
+        modelMapper.map(dto, existingEntry);
         return addressBookRepository.save(existingEntry);
     }
 
+    @Override
     public void deleteContact(Long id) {
-        AddressBookEntry entry = addressBookRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found with id: " + id));
+        AddressBookEntry entry = getContactById(id);
         addressBookRepository.delete(entry);
     }
 }
