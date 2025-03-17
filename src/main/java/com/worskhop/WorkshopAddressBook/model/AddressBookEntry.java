@@ -1,5 +1,6 @@
 package com.worskhop.WorkshopAddressBook.model;
 
+import com.worskhop.WorkshopAddressBook.dto.AddressBookDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +20,12 @@ public class AddressBookEntry {
     private String email;
     private String phoneNumber;
     private String address;
+
+    // Constructor to convert DTO to Entity
+    public AddressBookEntry(AddressBookDTO dto) {
+        this.name = dto.getName();
+        this.email = dto.getEmail();
+        this.phoneNumber = dto.getPhoneNumber();
+        this.address = dto.getAddress();
+    }
 }
