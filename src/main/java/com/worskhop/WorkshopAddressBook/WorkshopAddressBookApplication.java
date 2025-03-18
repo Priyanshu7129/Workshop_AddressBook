@@ -12,3 +12,6 @@ public class WorkshopAddressBookApplication {
 		SpringApplication.run(WorkshopAddressBookApplication.class, args);
 	}
 }
+
+
+//http://localhost:8080/swagger-ui.html for swagger
