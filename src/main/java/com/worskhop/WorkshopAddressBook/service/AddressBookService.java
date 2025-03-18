@@ -1,15 +1,13 @@
 package com.worskhop.WorkshopAddressBook.service;
 
-import com.worskhop.WorkshopAddressBook.dto.AddressBookDTO;
 import com.worskhop.WorkshopAddressBook.model.AddressBookEntry;
 import com.worskhop.WorkshopAddressBook.repository.AddressBookRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressBookService implements IAddressBookService {
@@ -17,36 +15,35 @@ public class AddressBookService implements IAddressBookService {
     @Autowired
     private AddressBookRepository addressBookRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Override
+    // ✅ Cache all contacts
+    @Cacheable(value = "contacts")
     public List<AddressBookEntry> getAllContacts() {
+        System.out.println("Fetching from DB...");
         return addressBookRepository.findAll();
     }
 
-    @Override
-    public AddressBookEntry getContactById(Long id) {
-        return addressBookRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found with id: " + id));
+    // ✅ Cache individual contact retrieval
+    @Cacheable(value = "contact", key = "#id")
+    public Optional<AddressBookEntry> getContactById(Long id) {
+        System.out.println("Fetching contact from DB...");
+        return addressBookRepository.findById(id);
     }
 
-    @Override
-    public AddressBookEntry addContact(AddressBookDTO dto) {
-        AddressBookEntry entry = modelMapper.map(dto, AddressBookEntry.class);
+    // ✅ Evict cache when a new contact is added
+    @CacheEvict(value = "contacts", allEntries = true)
+    public AddressBookEntry addContact(AddressBookEntry entry) {
         return addressBookRepository.save(entry);
     }
 
-    @Override
-    public AddressBookEntry updateContact(Long id, AddressBookDTO dto) {
-        AddressBookEntry existingEntry = getContactById(id);
-        modelMapper.map(dto, existingEntry);
-        return addressBookRepository.save(existingEntry);
+    // ✅ Evict cache when a contact is updated
+    @CacheEvict(value = {"contacts", "contact"}, allEntries = true)
+    public AddressBookEntry updateContact(Long id, AddressBookEntry entry) {
+        return addressBookRepository.save(entry);
     }
 
-    @Override
+    // ✅ Evict cache when a contact is deleted
+    @CacheEvict(value = {"contacts", "contact"}, allEntries = true)
     public void deleteContact(Long id) {
-        AddressBookEntry entry = getContactById(id);
-        addressBookRepository.delete(entry);
+        addressBookRepository.deleteById(id);
     }
 }

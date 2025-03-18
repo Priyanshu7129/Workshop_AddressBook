@@ -1,13 +1,13 @@
 package com.worskhop.WorkshopAddressBook.service;
 
-import com.worskhop.WorkshopAddressBook.dto.AddressBookDTO;
 import com.worskhop.WorkshopAddressBook.model.AddressBookEntry;
 import java.util.List;
+import java.util.Optional;
 
 public interface IAddressBookService {
     List<AddressBookEntry> getAllContacts();
-    AddressBookEntry getContactById(Long id);
-    AddressBookEntry addContact(AddressBookDTO dto);
-    AddressBookEntry updateContact(Long id, AddressBookDTO dto);
+    Optional<AddressBookEntry> getContactById(Long id);
+    AddressBookEntry addContact(AddressBookEntry entry);
+    AddressBookEntry updateContact(Long id, AddressBookEntry entry);
     void deleteContact(Long id);
 }
